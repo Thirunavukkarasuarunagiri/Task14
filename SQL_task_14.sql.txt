@@ -1,0 +1,147 @@
+-- Create the 'IMDB' database
+CREATE DATABASE IF NOT EXISTS IMDB;
+USE IMDB;
+
+-- Create the 'movies' table
+CREATE TABLE IF NOT EXISTS movies (
+    movie_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    release_year INT,
+    FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+);
+
+-- Create the 'media' table
+CREATE TABLE IF NOT EXISTS media (
+    media_id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT,
+    media_type ENUM('video', 'image') NOT NULL,
+    media_url VARCHAR(255) NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+);
+
+-- Create the 'genres' table
+CREATE TABLE IF NOT EXISTS genres (
+    genre_id INT AUTO_INCREMENT PRIMARY KEY,
+    genre_name VARCHAR(100) NOT NULL
+);
+
+-- Create the 'movie_genres' table to represent the many-to-many relationship between movies and genres
+CREATE TABLE IF NOT EXISTS movie_genres (
+    movie_id INT,
+    genre_id INT,
+    PRIMARY KEY (movie_id, genre_id),
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+    FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+);
+
+-- Create the 'reviews' table
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT,
+    user_id INT,
+    review_text TEXT NOT NULL,
+    rating DECIMAL(3, 2) NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Create the 'users' table
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+-- Create the 'artists' table
+CREATE TABLE IF NOT EXISTS artists (
+    artist_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL
+);
+
+-- Create the 'skills' table
+CREATE TABLE IF NOT EXISTS skills (
+    skill_id INT AUTO_INCREMENT PRIMARY KEY,
+    skill_name VARCHAR(50) NOT NULL
+);
+
+-- Create the 'artist_skills' table to represent the many-to-many relationship between artists and skills
+CREATE TABLE IF NOT EXISTS artist_skills (
+    artist_id INT,
+    skill_id INT,
+    PRIMARY KEY (artist_id, skill_id),
+    FOREIGN KEY (artist_id) REFERENCES artists(artist_id),
+    FOREIGN KEY (skill_id) REFERENCES skills(skill_id)
+);
+
+-- Create the 'artist_roles' table to represent the many-to-many relationship between artists and roles in a film
+CREATE TABLE IF NOT EXISTS artist_roles (
+    artist_id INT,
+    movie_id INT,
+    role_name VARCHAR(50) NOT NULL,
+    PRIMARY KEY (artist_id, movie_id, role_name),
+    FOREIGN KEY (artist_id) REFERENCES artists(artist_id),
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+);
+
+-- Insert sample data into the 'genres' table
+INSERT INTO genres (genre_name) VALUES
+('Action'),
+('Sci-Fi'),
+('Drama');
+
+-- Insert sample data into the 'movies' table
+INSERT INTO movies (title, release_year) VALUES
+('Inception', 2010),
+('The Shawshank Redemption', 1994),
+('The Dark Knight', 2008);
+
+-- Insert sample data into the 'media' table
+INSERT INTO media (movie_id, media_type, media_url) VALUES
+(1, 'video', 'https://example.com/inception-trailer.mp4'),
+(1, 'image', 'https://example.com/inception-poster.jpg'),
+(2, 'video', 'https://example.com/shawshank-trailer.mp4'),
+(3, 'image', 'https://example.com/darkknight-poster.jpg');
+
+-- Insert sample data into the 'movie_genres' table to represent relationships
+INSERT INTO movie_genres (movie_id, genre_id) VALUES
+(1, 2), -- Inception - Sci-Fi
+(2, 3), -- The Shawshank Redemption - Drama
+(3, 1); -- The Dark Knight - Action
+
+-- Insert sample data into the 'users' table
+INSERT INTO users (username, email) VALUES
+('john_doe', 'john@example.com'),
+('jane_smith', 'jane@example.com');
+
+-- Insert sample data into the 'artists' table
+INSERT INTO artists (first_name, last_name) VALUES
+('Leonardo', 'DiCaprio'),
+('Morgan', 'Freeman'),
+('Christian', 'Bale');
+
+-- Insert sample data into the 'skills' table
+INSERT INTO skills (skill_name) VALUES
+('Acting'),
+('Directing'),
+('Cinematography');
+
+-- Insert sample data into the 'artist_skills' table to represent relationships
+INSERT INTO artist_skills (artist_id, skill_id) VALUES
+(1, 1), -- Leonardo DiCaprio - Acting
+(2, 1), -- Morgan Freeman - Acting
+(3, 1), -- Christian Bale - Acting
+(3, 2); -- Christian Bale - Directing
+
+-- Insert sample data into the 'artist_roles' table to represent relationships
+INSERT INTO artist_roles (artist_id, movie_id, role_name) VALUES
+(1, 1, 'Actor'), -- Leonardo DiCaprio - Inception - Actor
+(2, 2, 'Actor'), -- Morgan Freeman - The Shawshank Redemption - Actor
+(3, 3, 'Actor'), -- Christian Bale - The Dark Knight - Actor
+(3, 3, 'Director'); -- Christian Bale - The Dark Knight - Director
+
+-- Insert sample data into the 'reviews' table
+INSERT INTO reviews (movie_id, user_id, review_text, rating) VALUES
+(1, 1, 'Great movie!', 4.5),
+(2, 2, 'A masterpiece!', 5.0),
+(3, 1, 'Awesome performance by Christian Bale!', 4.8);
